@@ -1,7 +1,9 @@
 import type { Vault, Position, VaultFilters } from '../types';
 import { calculateRiskScore } from '../utils/riskScore';
 
-const EARN_BASE_URL = import.meta.env.VITE_EARN_BASE_URL || 'https://earn.li.fi';
+// Use the env var when set (e.g. production Vercel with rewrites), otherwise
+// fall back to the Vite dev-server proxy path `/earn-api` which avoids CORS.
+const EARN_BASE_URL = import.meta.env.VITE_EARN_BASE_URL || '/earn-api';
 
 function enrichVault(raw: Record<string, unknown>): Vault {
   const vault: Vault = {
@@ -29,9 +31,18 @@ export async function fetchVaults(filters?: VaultFilters): Promise<Vault[]> {
 
   const url = `${EARN_BASE_URL}/v1/opportunities?${params.toString()}`;
 
-  const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (networkErr) {
+    throw new Error(
+      `Could not reach the Earn API. In development, ensure the Vite proxy is running (npm run dev). ` +
+      `In production, check the /earn-api rewrite in vercel.json or set VITE_EARN_BASE_URL. ` +
+      `(${networkErr instanceof Error ? networkErr.message : networkErr})`,
+    );
+  }
 
   if (!res.ok) {
     throw new Error(`Earn API error ${res.status}: ${await res.text()}`);
@@ -70,9 +81,18 @@ export async function fetchPositions(walletAddress: string): Promise<Position[]>
 
   const url = `${EARN_BASE_URL}/v1/positions?walletAddress=${encodeURIComponent(walletAddress)}`;
 
-  const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (networkErr) {
+    throw new Error(
+      `Could not reach the Earn API. In development, ensure the Vite proxy is running (npm run dev). ` +
+      `In production, check the /earn-api rewrite in vercel.json or set VITE_EARN_BASE_URL. ` +
+      `(${networkErr instanceof Error ? networkErr.message : networkErr})`,
+    );
+  }
 
   if (!res.ok) {
     throw new Error(`Earn API error ${res.status}: ${await res.text()}`);

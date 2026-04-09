@@ -15,9 +15,9 @@ A hackathon MVP that helps DeFi users discover higher-yield vaults and rebalance
 
 ### Features
 
-- **Wallet connect** — paste any EVM wallet address to load data
+- **Wallet connect** — powered by [RainbowKit](https://rainbowkit.com) + [wagmi](https://wagmi.sh); clicking **Connect Wallet** opens the wallet-extension modal (MetaMask, Rainbow, Coinbase Wallet, WalletConnect, …)
 - **Vault discovery** — fetches from the LI.FI Earn API with chain / token / protocol / APY / risk filters
-- **Positions view** — shows your current yield positions by wallet address
+- **Positions view** — shows your current yield positions for the connected wallet
 - **Recommendation card** — compares your current vault vs a better one (APY + risk delta)
 - **Composer execution** — calls LI.FI `/v1/quote` and shows the transaction data with a confirm UI (no on-chain execution in MVP)
 - **Risk score** — computed from TVL change, APY volatility, protocol tier, and chain tier
@@ -26,7 +26,7 @@ A hackathon MVP that helps DeFi users discover higher-yield vaults and rebalance
 
 ```bash
 cd web
-cp .env.example .env          # fill in your API keys
+cp .env.example .env          # fill in any keys you have (all optional for local dev)
 npm install
 npm run dev
 ```
@@ -35,16 +35,18 @@ npm run dev
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VITE_EARN_BASE_URL` | `https://earn.li.fi` | LI.FI Earn API base URL |
+| `VITE_EARN_BASE_URL` | _(proxy)_ | LI.FI Earn API base URL. Leave **unset** to use the built-in `/earn-api` reverse-proxy that avoids CORS issues in both dev and Vercel. |
 | `VITE_LIFI_BASE_URL` | `https://li.quest` | LI.FI main API base URL |
-| `VITE_LIFI_API_KEY` | _(empty)_ | LI.FI API key (get one at [li.fi/api](https://li.fi/api/)) |
+| `VITE_LIFI_API_KEY` | _(empty)_ | LI.FI API key — optional, only for higher rate limits. Keep server-side only. |
+| `VITE_WALLET_CONNECT_PROJECT_ID` | _(demo)_ | WalletConnect project ID. Get a free one at [cloud.walletconnect.com](https://cloud.walletconnect.com). Required for WalletConnect-based mobile wallets. |
 
 ### Deploy to Vercel
 
 1. Import the repo in [Vercel](https://vercel.com/new).
 2. Set **Root Directory** to `web`.
-3. Add the environment variables from the table above in Project → Settings → Environment Variables.
-4. Click **Deploy**.
+3. The `web/vercel.json` rewrites automatically proxy `/earn-api/*` → `https://earn.li.fi/*`, so **no `VITE_EARN_BASE_URL` env var is needed**.
+4. Optionally add `VITE_WALLET_CONNECT_PROJECT_ID` in Project → Settings → Environment Variables.
+5. Click **Deploy**.
 
 ---
 

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useAccount } from 'wagmi';
 import { WalletConnect } from './components/WalletConnect';
 import { VaultFilter } from './components/VaultFilter';
 import { VaultCard } from './components/VaultCard';
@@ -54,7 +55,8 @@ function buildRecommendation(
 }
 
 export default function App() {
-  const [walletAddress, setWalletAddress] = useState('');
+  const { address: connectedAddress } = useAccount();
+  const walletAddress = connectedAddress ?? '';
   const [tab, setTab] = useState<Tab>('vaults');
   const [filters, setFilters] = useState<VaultFilters>({});
   const [executeTarget, setExecuteTarget] = useState<Recommendation | null>(null);
@@ -93,11 +95,7 @@ export default function App() {
             Recommend
           </button>
         </nav>
-        <WalletConnect
-          address={walletAddress}
-          onConnect={setWalletAddress}
-          onDisconnect={() => setWalletAddress('')}
-        />
+        <WalletConnect />
       </header>
 
       <main className="app-main">
