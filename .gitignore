@@ -1,0 +1,16 @@
+# Web
+web/node_modules/
+web/dist/
+web/.env
+
+# Bot
+bot/.env
+bot/.venv/
+bot/__pycache__/
+bot/**/__pycache__/
+bot/*.pyc
+bot/**/*.pyc
+
+# Misc
+.DS_Store
+*.log
